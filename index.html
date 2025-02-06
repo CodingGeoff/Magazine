@@ -138,6 +138,42 @@
         color: #457fca;
         font-size: 1.6rem;
       }
+
+      /* 搜索框容器样式 */
+      .search-container {
+        margin-top: 20px;
+        position: relative;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      /* 搜索输入框样式 */
+      #search-input {
+        width: 100%;
+        padding: 15px 20px;
+        border: none;
+        border-radius: 30px;
+        font-size: 1.1rem;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        outline: none;
+        transition: box-shadow 0.3s ease;
+      }
+
+      #search-input:focus {
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      /* 搜索图标样式 */
+      .search-container .fa-search {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #457fca;
+        font-size: 1.2rem;
+        cursor: pointer;
+      }
     </style>
     <!-- 引入 Font Awesome 图标库 -->
     <link
@@ -149,45 +185,68 @@
   <body>
     <header>
       <h1>Open Magazine Library</h1>
+      <div class="search-container">
+        <input
+          type="text"
+          id="search-input"
+          placeholder="Search for a magazine..."
+        />
+        <i class="fas fa-search"></i>
+      </div>
     </header>
     <div class="container">
       <div id="magazine-list"></div>
     </div>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-        const magazines = {
-          "2025-Magazine-1": [
-            "Artforum 02 2025.pdf",
-            "Kitchen Bath Design News 01 02 2025.pdf",
-            "Model Airplane News 03 04 2025.pdf",
-            "Sports Illustrated National Champions Commemorative 2025.pdf",
-          ],
-        };
-
+        const pdfFiles = [
+          "Artforum 02 2025.pdf",
+          "Canadian Living 03 2025.pdf",
+          "Kitchen Bath Design News 01 02 2025.pdf",
+          "Model Airplane News 03 04 2025.pdf",
+          "Sports Illustrated National Champions Commemorative 2025.pdf",
+        ];
         const magazineList = document.getElementById("magazine-list");
+        const searchInput = document.getElementById("search-input");
 
-        for (const [page, files] of Object.entries(magazines)) {
-          const card = document.createElement("div");
-          card.className = "magazine-card";
+        // 渲染杂志列表
+        function renderMagazines(filterText = "") {
+          magazineList.innerHTML = ""; // 清空当前列表
 
-          // const title = document.createElement("h2");
-          // title.textContent = page;
-          // card.appendChild(title);
+          for (const [page, files] of Object.entries(magazines)) {
+            const filteredFiles = files.filter((file) =>
+              file.toLowerCase().includes(filterText.toLowerCase())
+            );
 
-          const list = document.createElement("ul");
-          files.forEach((file) => {
-            const listItem = document.createElement("li");
-            const link = document.createElement("a");
-            link.href = `http://codinggeoff.github.io/${page}?search=${file}`;
-            link.textContent = file;
-            link.target = "_blank";
-            listItem.appendChild(link);
-            list.appendChild(listItem);
-          });
+            if (filteredFiles.length > 0) {
+              const card = document.createElement("div");
+              card.className = "magazine-card";
 
-          card.appendChild(list);
-          magazineList.appendChild(card);
+              const list = document.createElement("ul");
+              filteredFiles.forEach((file) => {
+                const listItem = document.createElement("li");
+                const link = document.createElement("a");
+                link.href = `http://codinggeoff.github.io/${page}?search=${file}`;
+                link.textContent = file;
+                link.target = "_blank";
+                listItem.appendChild(link);
+                list.appendChild(listItem);
+              });
+
+              card.appendChild(list);
+              magazineList.appendChild(card);
+            }
+          }
         }
+
+        // 初始渲染
+        renderMagazines();
+
+        // 搜索框输入事件监听
+        searchInput.addEventListener("input", function (e) {
+          const searchText = e.target.value.trim();
+          renderMagazines(searchText);
+        });
       });
     </script>
   </body>
