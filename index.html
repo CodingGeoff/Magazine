@@ -105,6 +105,8 @@
         transition: background-color 0.3s ease;
         display: flex;
         align-items: center;
+        border-radius: 10px;
+        margin-bottom: 10px;
       }
 
       .magazine-card ul li:last-child {
@@ -123,6 +125,10 @@
         transition: color 0.3s ease;
         display: flex;
         align-items: center;
+        width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .magazine-card ul li a:hover {
@@ -146,33 +152,76 @@
         max-width: 500px;
         margin-left: auto;
         margin-right: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
       }
 
       /* 搜索输入框样式 */
       #search-input {
-        width: 100%;
+        width: 0;
         padding: 15px 20px;
         border: none;
         border-radius: 30px;
         font-size: 1.1rem;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         outline: none;
-        transition: box-shadow 0.3s ease;
+        transition: width 0.3s ease, box-shadow 0.3s ease;
+        opacity: 0;
+        visibility: hidden;
       }
 
       #search-input:focus {
         box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
       }
 
-      /* 搜索图标样式 */
-      .search-container .fa-search {
-        position: absolute;
-        right: 20px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #457fca;
-        font-size: 1.2rem;
+      /* 搜索提示横线样式 */
+      /* 搜索提示横线样式 */
+      .search-underline {
+        width: 1000px; /* Adjusted width, you can change this value as needed */
+        height: 2px;
+        background-color: white;
         cursor: pointer;
+        transition: width 0.2s ease, opacity 0.3s ease;
+        opacity: 0.8;
+      }
+      /* .search-underline {
+            width: 0;
+            height: 2px;
+            background-color: white;
+            cursor: pointer;
+            transition: width 0.3s ease, opacity 0.3s ease;
+            opacity: 0.8;
+        } */
+
+      .search-container:hover.search-underline,
+      #search-input:focus ~ .search-underline {
+        width: 100%;
+        opacity: 1;
+      }
+
+      /* 鼠标悬停或聚焦时展开搜索框 */
+      .search-container:hover #search-input,
+      #search-input:focus {
+        width: 100%;
+        opacity: 1;
+        visibility: visible;
+      }
+
+      /* 搜索结果文本样式 */
+      .search-result-text {
+        color: white;
+        font-size: 1.1rem;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease;
+      }
+
+      .search-container:hover.search-result-text,
+      #search-input:focus ~ .search-result-text {
+        opacity: 1;
+        visibility: visible;
       }
     </style>
     <!-- 引入 Font Awesome 图标库 -->
@@ -191,7 +240,8 @@
           id="search-input"
           placeholder="Search for a magazine..."
         />
-        <i class="fas fa-search"></i>
+        <span class="search-underline"></span>
+        <span class="search-result-text" id="search-result-count"></span>
       </div>
     </header>
     <div class="container">
@@ -212,10 +262,14 @@
 
         const magazineList = document.getElementById("magazine-list");
         const searchInput = document.getElementById("search-input");
+        const searchResultCount = document.getElementById(
+          "search-result-count"
+        );
 
         // 渲染杂志列表
         function renderMagazines(filterText = "") {
           magazineList.innerHTML = ""; // 清空当前列表
+          let resultCount = 0;
 
           for (const [page, files] of Object.entries(magazines)) {
             const filteredFiles = files.filter((file) =>
@@ -223,6 +277,7 @@
             );
 
             if (filteredFiles.length > 0) {
+              resultCount += filteredFiles.length;
               const card = document.createElement("div");
               card.className = "magazine-card";
 
@@ -241,6 +296,10 @@
               magazineList.appendChild(card);
             }
           }
+
+          const resultText =
+            resultCount === 1 ? "1 result" : `${resultCount} results`;
+          searchResultCount.textContent = resultText;
         }
 
         // 初始渲染
